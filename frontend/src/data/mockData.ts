@@ -1,0 +1,58 @@
+import type { EventItem } from '../types';
+
+export const events: EventItem[] = [
+  {
+    id: 1,
+    title: "Tech Summit 2025",
+    date: "Oct 15, 2025",
+    location: "Convention Center, BA",
+    price: 150,
+    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1000",
+    category: "Conference",
+  },
+  {
+    id: 2,
+    title: "Rock in Rio - Edición Latam",
+    date: "Nov 20, 2025",
+    location: "Estadio Único, LP",
+    price: 85,
+    image: "https://images.unsplash.com/photo-1459749411177-84311463e502?auto=format&fit=crop&q=80&w=1000",
+    category: "Concert",
+  },
+  {
+    id: 3,
+    title: "AWS Community Day",
+    date: "Dec 01, 2025",
+    location: "Auditorio Principal, CABA",
+    price: 0,
+    image: "https://images.unsplash.com/photo-1591115765373-5207764f72e7?auto=format&fit=crop&q=80&w=1000",
+    category: "Workshop",
+  },
+  {
+    id: 4,
+    title: "Jazz & Wine Night",
+    date: "Dec 10, 2025",
+    location: "The Blue Note Club",
+    price: 45,
+    image: "https://images.unsplash.com/photo-1511192336266-603006237254?auto=format&fit=crop&q=80&w=1000",
+    category: "Concert",
+  },
+  {
+    id: 5,
+    title: "Frontend Masters Workshop",
+    date: "Jan 15, 2026",
+    location: "Online",
+    price: 299,
+    image: "https://images.unsplash.com/photo-1517245386877-91ef546194c2?auto=format&fit=crop&q=80&w=1000",
+    category: "Workshop",
+  },
+  {
+    id: 6,
+    title: "Indie Game Showcase",
+    date: "Feb 02, 2026",
+    location: "Cultural Center",
+    price: 25,
+    image: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?auto=format&fit=crop&q=80&w=1000",
+    category: "Exhibition",
+  },
+];
