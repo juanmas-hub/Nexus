@@ -1,6 +1,6 @@
 package ports
 
-import "../domain"
+import "nexus/auth-service/internal/core/domain"
 
 type UserRepository interface {
     GetByEmail(email string) (*domain.User, error)
