@@ -33,9 +33,6 @@ dist-ssr
 *.test
 *.out
 
-auth-service
-booking-service
-catalog-service
 
 vendor/
 
