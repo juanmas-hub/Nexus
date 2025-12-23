@@ -1,11 +1,28 @@
+import { useState } from "react";
 import Navbar from "./components/Navbar";
 import Hero from "./sections/Hero";
 import EventCard from "./components/EventCard";
+import LoginForm from "./components/LoginForm";
+import RegisterForm from "./components/RegisterForm";
 import { events } from "./data/mockData";
 import { ArrowRight } from "lucide-react";
 import type { EventItem } from "./types"; 
+import { useAuth } from "./context/AuthContext";
 
 function App() {
+  const { isAuthenticated } = useAuth();
+  const [authView, setAuthView] = useState<"login" | "register">("login");
+
+  // USUARIO NO AUTENTICADO
+  if (!isAuthenticated) {
+    return authView === "login" ? (
+      <LoginForm onSwitchRegister={() => setAuthView("register")} />
+    ) : (
+      <RegisterForm onSwitchLogin={() => setAuthView("login")} />
+    );
+  }
+
+  // USUARIO AUTENTICADO
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
       <Navbar />
@@ -13,10 +30,8 @@ function App() {
       <main>
         <Hero />
 
-        {/* Section Container */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          
-          {/* Section Header */}
+
           <div className="flex justify-between items-end mb-10">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-2">Próximos Eventos</h2>
@@ -27,7 +42,6 @@ function App() {
             </button>
           </div>
 
-          {/* Grid System */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
             {events.map((event: EventItem) => (
               <EventCard key={event.id} event={event} />
