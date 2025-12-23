@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 
 	"nexus/auth-service/internal/core/ports"
@@ -58,6 +59,8 @@ func (s *AuthService) Register(user *domain.User) error {
     if existing != nil {
         return errors.New("el usuario ya está registrado")
     }
+
+	user.ID = uuid.New().String()
 
     hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
     if err != nil {
