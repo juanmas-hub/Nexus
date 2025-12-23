@@ -19,22 +19,21 @@ import (
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		log.Println("Aviso: No se encontró archivo .env")
+		log.Println("Info: .env file not found, using system environment variables")
 	}
 
 	dsn := os.Getenv("DATABASE_URL")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("No se pudo conectar a la DB:", err)
+		log.Fatal("Failed to connect to the database: ", err)
 	}
 
-	log.Println("Ejecutando migraciones...")
+	log.Println("Running database migrations...")
 	err = db.AutoMigrate(&domain.User{})
 	if err != nil {
-		log.Fatal("Error en la migración de la base de datos:", err)
+		log.Fatal("Database migration failed: ", err)
 	}
-	log.Println("Migración completada con éxito.")
-
+	log.Println("Database migration completed successfully.")
 
 	userRepo := repository.NewPostgresRepository(db)
 	authService := services.NewAuthService(userRepo)
@@ -42,18 +41,25 @@ func main() {
 
 	r := gin.Default()
 
-	// CONFIGURACIÓN DE CORS
-    r.Use(cors.New(cors.Config{
-        AllowOrigins:     []string{"http://localhost:5173"},
-        AllowMethods:     []string{"POST", "GET", "OPTIONS", "PUT", "DELETE"},
-        AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-        ExposeHeaders:    []string{"Content-Length"},
-        AllowCredentials: true, 
-    }))
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{
+			"http://localhost:5173",
+			"https://nexus-b6b.pages.dev",
+		},
+		AllowMethods:     []string{"POST", "GET", "OPTIONS", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	r.POST("/auth/login", authHandler.Login)
 	r.POST("/auth/register", authHandler.Register)
 
-	log.Println("Servidor iniciado en el puerto :8080")
-	r.Run(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Printf("Server started on port :%s", port)
+	r.Run(":" + port)
 }
