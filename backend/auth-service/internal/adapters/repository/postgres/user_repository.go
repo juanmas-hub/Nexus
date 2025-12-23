@@ -28,3 +28,7 @@ func (r *PostgresRepository) GetByEmail(email string) (*domain.User, error) {
 
     return &userEntity, nil
 }
+
+func (r *PostgresRepository) Save(user *domain.User) error {
+    return r.db.Create(user).Error
+}

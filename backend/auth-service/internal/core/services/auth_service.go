@@ -9,6 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"nexus/auth-service/internal/core/ports"
+	"nexus/auth-service/internal/core/domain"
 )
 
 type AuthService struct {
@@ -22,39 +23,47 @@ func NewAuthService(repo ports.UserRepository) *AuthService {
 }
 
 func (s *AuthService) Login(email, password string) (string, error) {
-	// 1. Buscar usuario
 	user, err := s.repo.GetByEmail(email)
 	if err != nil {
 		return "", errors.New("credenciales inválidas")
 	}
 
-	// 2. Verificar contraseña
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		return "", errors.New("credenciales inválidas")
 	}
 
-	// 3. Crear Claims del Token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":   user.ID,
 		"email": user.Email,
-		"exp":   time.Now().Add(time.Hour * 24).Unix(), // 24 horas
+		"exp":   time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	// 4. Obtener el secreto de la variable de entorno
 	secretKeyString := os.Getenv("JWT_SECRET")
 
-	// Es importante validar que la variable exista. 
-	// Si se te olvidó ponerla, esto evitará que la app firme tokens vacíos o inseguros.
 	if secretKeyString == "" {
 		return "", errors.New("error interno: configuración de seguridad faltante")
 	}
 
-	// 5. Firmar el token
 	tokenString, err := token.SignedString([]byte(secretKeyString))
 	if err != nil {
 		return "", err
 	}
 
 	return tokenString, nil
+}
+
+func (s *AuthService) Register(user *domain.User) error {
+    existing, _ := s.repo.GetByEmail(user.Email)
+    if existing != nil {
+        return errors.New("el usuario ya está registrado")
+    }
+
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+    if err != nil {
+        return err
+    }
+    user.Password = string(hashedPassword)
+
+    return s.repo.Save(user)
 }

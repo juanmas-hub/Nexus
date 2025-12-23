@@ -41,6 +41,7 @@ func main() {
 	r := gin.Default()
 
 	r.POST("/auth/login", authHandler.Login)
+	r.POST("/auth/register", authHandler.Register)
 
 	log.Println("Servidor iniciado en el puerto :8080")
 	r.Run(":8080")
