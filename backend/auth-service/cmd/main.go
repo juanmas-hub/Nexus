@@ -9,6 +9,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	"github.com/gin-contrib/cors"
+
 	"nexus/auth-service/internal/adapters/handler/http"
 	"nexus/auth-service/internal/adapters/repository/postgres"
 	"nexus/auth-service/internal/core/domain"
@@ -39,6 +41,15 @@ func main() {
 	authHandler := http.NewAuthHandler(authService)
 
 	r := gin.Default()
+
+	// CONFIGURACIÓN DE CORS
+    r.Use(cors.New(cors.Config{
+        AllowOrigins:     []string{"http://localhost:5173"},
+        AllowMethods:     []string{"POST", "GET", "OPTIONS", "PUT", "DELETE"},
+        AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true, 
+    }))
 
 	r.POST("/auth/login", authHandler.Login)
 	r.POST("/auth/register", authHandler.Register)
