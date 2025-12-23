@@ -3,7 +3,7 @@ import Navbar from "./components/Navbar";
 import Hero from "./sections/Hero";
 import EventCard from "./components/EventCard";
 import LoginForm from "./components/LoginForm";
-import RegisterForm from "./components/RegisterForm"; // <--- Lo crearemos ahora
+import RegisterForm from "./components/RegisterForm";
 import { events } from "./data/mockData";
 import { ArrowRight } from "lucide-react";
 import type { EventItem } from "./types"; 
