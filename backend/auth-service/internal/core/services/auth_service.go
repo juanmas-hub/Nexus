@@ -2,12 +2,7 @@ package services
 
 import (
 	"errors"
-	"os"
-	"time"
-
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 
 	"nexus/auth-service/internal/core/ports"
 	"nexus/auth-service/internal/core/domain"
@@ -25,48 +20,26 @@ func NewAuthService(repo ports.UserRepository) *AuthService {
 
 func (s *AuthService) Login(email, password string) (string, error) {
 	user, err := s.repo.GetByEmail(email)
-	if err != nil {
+	if err != nil || !checkPasswordHash(password, user.Password) {
 		return "", errors.New("credenciales inválidas")
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err != nil {
-		return "", errors.New("credenciales inválidas")
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub":   user.ID,
-		"email": user.Email,
-		"exp":   time.Now().Add(time.Hour * 24).Unix(),
-	})
-
-	secretKeyString := os.Getenv("JWT_SECRET")
-
-	if secretKeyString == "" {
-		return "", errors.New("error interno: configuración de seguridad faltante")
-	}
-
-	tokenString, err := token.SignedString([]byte(secretKeyString))
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
+	return generateToken(user)
 }
 
 func (s *AuthService) Register(user *domain.User) error {
-    existing, _ := s.repo.GetByEmail(user.Email)
-    if existing != nil {
-        return errors.New("el usuario ya está registrado")
-    }
+	existing, _ := s.repo.GetByEmail(user.Email)
+	if existing != nil {
+		return errors.New("el usuario ya está registrado")
+	}
 
 	user.ID = uuid.New().String()
+	
+	hashed, err := hashPassword(user.Password)
+	if err != nil {
+		return err
+	}
+	user.Password = hashed
 
-    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-    if err != nil {
-        return err
-    }
-    user.Password = string(hashedPassword)
-
-    return s.repo.Save(user)
+	return s.repo.Save(user)
 }
