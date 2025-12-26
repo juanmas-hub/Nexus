@@ -9,16 +9,15 @@ import (
 	"github.com/rs/cors"
 	
 	httpHandler "github.com/juanmas-hub/nexus/backend/api-gateway/internal/adapters/handler/http"
+	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/config"
 	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/adapters/proxy"
 	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/services"
 )
 
 func main() {
-	authServiceURL := os.Getenv("AUTH_SERVICE_URL")
-	port := os.Getenv("PORT")
-	if port == "" { port = "8080" }
+	cfg := config.Load()
 
-	authProxy, err := proxy.NewHTTPProxy(authServiceURL)
+	authProxy, err := proxy.NewHTTPProxy(cfg.AuthServiceURL)
 	if err != nil {
 		log.Fatalf("Error configurando Proxy de Auth: %v", err)
 	}
@@ -38,7 +37,7 @@ func main() {
 
 	gatewayHandler.SetupRoutes(r)
 
-	if err := http.ListenAndServe(":"+port, r); err != nil {
+	if err := http.ListenAndServe(":"+cfg.Port, r); err != nil {
 		log.Fatal(err)
 	}
 }
