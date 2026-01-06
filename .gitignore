@@ -1,3 +1,13 @@
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs
+*.njsproj
+*.sln
+*.sw?
+
 logs
 *.log
 npm-debug.log*
@@ -11,15 +21,13 @@ dist
 dist-ssr
 *.local
 
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs
-*.njsproj
-*.sln
-*.sw?
+vendor/
+go.work
+go.work.sum
+*.test
+*.out
+
+**/target/
 
 .env
 .env.*
@@ -30,11 +38,3 @@ dist-ssr
 *.dll
 *.so
 *.dylib
-*.test
-*.out
-
-
-vendor/
-
-go.work
-go.work.sumtarget/
