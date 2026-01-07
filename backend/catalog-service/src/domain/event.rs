@@ -6,7 +6,7 @@ use uuid::Uuid;
 pub struct Event {
     pub id: Uuid,  
     pub title: String,      
-    pub description: String, 
+    pub description: Option<String>, 
     pub location: String, 
     pub event_date: DateTime<Utc>,
     pub capacity: i32,
