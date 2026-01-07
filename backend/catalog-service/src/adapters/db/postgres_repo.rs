@@ -22,7 +22,7 @@ impl EventRepository for PostgresEventRepository {
         )
         .fetch_all(&self.pool)
         .await
-        .map_err(|e| e.to_string())?;
+        .map_err(|e: sqlx::Error| e.to_string())?;
 
         Ok(records)
     }
