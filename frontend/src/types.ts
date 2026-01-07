@@ -1,9 +1,8 @@
-export interface EventItem {
-  id: number;
+export interface Event {
+  id: string;
   title: string;
-  date: string;
+  description?: string;
   location: string;
-  price: number;
-  image: string;
-  category: string;
+  event_date: string;
+  capacity: number;
 }

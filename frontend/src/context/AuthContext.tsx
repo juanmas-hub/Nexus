@@ -1,22 +1,37 @@
-import { createContext, useState, useContext, type ReactNode } from 'react';
+import { createContext, useState, useContext, type ReactNode} from 'react';
+import { api } from '../api/axios';
 
 interface AuthContextType {
     isAuthenticated: boolean;
-    login: () => void;
+    login: (email: string, password: string) => Promise<void>; 
     logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    // Por ahora, siempre empezamos como "no autenticados" al recargar
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        return !!localStorage.getItem('token');
+    });
 
-    const login = () => {
-        setIsAuthenticated(true);
+    // Cambiamos 'credentials' por los dos argumentos que espera el LoginForm
+    const login = async (email: string, password: string) => {
+        try {
+            // Enviamos el objeto al Gateway (puerto 8080)
+            // IMPORTANTE: Sin el prefijo "/auth" para que el Gateway lo encuentre
+            const response = await api.post('/login', { email, password });
+            
+            const { token } = response.data;
+            localStorage.setItem('token', token);
+            setIsAuthenticated(true);
+        } catch (error) {
+            console.error("Error en el login de Nexus:", error);
+            throw error;
+        }
     };
 
     const logout = () => {
+        localStorage.removeItem('token');
         setIsAuthenticated(false);
     };
 
@@ -27,7 +42,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
 };
 
-// Hook
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {

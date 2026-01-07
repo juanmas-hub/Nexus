@@ -8,7 +8,7 @@ import (
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"github.com/gin-contrib/cors"
+	//"github.com/gin-contrib/cors"
 
 	"nexus/auth-service/internal/core/ports" 
     "nexus/auth-service/internal/adapters/repository/memory"
@@ -21,23 +21,19 @@ import (
 func main() {
     loadEnv()
 
-    // 1. Declaramos la variable usando la INTERFAZ (Puerto)
     var userRepo ports.UserRepository 
 
-    // 2. Elegimos el adaptador según una variable de entorno
     appMode := getEnv("APP_MODE", "prod")
 
     if appMode == "dev" {
-        log.Println("🔧 Mode: Development (Using In-Memory Database)")
-        // Aquí inicializas tu adaptador de memoria que creamos antes
+        log.Println("Mode: Development")
         userRepo = memory.NewMemoryUserRepository() 
     } else {
-        log.Println("🚀 Mode: Production (Using Postgres)")
+        log.Println("Mode: Production")
         db := connectDB(os.Getenv("DATABASE_URL"))
         userRepo = repository.NewPostgresRepository(db)
     }
 
-    // 3. El resto del flujo sigue IGUAL, gracias a la inyección de dependencias
     authService := services.NewAuthService(userRepo)
     authHandler := http.NewAuthHandler(authService)
 
@@ -71,13 +67,6 @@ func connectDB(dsn string) *gorm.DB {
 
 func setupRouter(h *http.AuthHandler) *gin.Engine {
 	r := gin.Default()
-
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "https://nexus-b6b.pages.dev"},
-		AllowMethods:     []string{"POST", "GET", "OPTIONS", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-		AllowCredentials: true,
-	}))
 
 	r.POST("/auth/login", h.Login)
 	r.POST("/auth/register", h.Register)
