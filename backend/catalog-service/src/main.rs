@@ -11,7 +11,7 @@ async fn main() {
     dotenv().ok();
     
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+    let port = env::var("PORT").unwrap_or_else(|_| "8082".to_string());
 
     let pool = PgPoolOptions::new()
         .max_connections(5)

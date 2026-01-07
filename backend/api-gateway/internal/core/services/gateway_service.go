@@ -6,19 +6,27 @@ import (
 )
 
 type GatewayService struct {
-	authProxy ports.ProxyProvider
+    authProxy    ports.ProxyProvider
+    catalogProxy ports.ProxyProvider
 }
 
-func NewGatewayService(auth ports.ProxyProvider) *GatewayService {
-	return &GatewayService{
-		authProxy: auth,
-	}
+func NewGatewayService(auth ports.ProxyProvider, catalog ports.ProxyProvider) *GatewayService {
+    return &GatewayService{
+        authProxy:    auth,
+        catalogProxy: catalog,
+    }
 }
 
+// AUTH
 func (s *GatewayService) Login(w http.ResponseWriter, r *http.Request) {
 	s.authProxy.Forward(w, r, "/auth/login")
 }
 
 func (s *GatewayService) Register(w http.ResponseWriter, r *http.Request) {
 	s.authProxy.Forward(w, r, "/auth/register")
+}
+
+// CATALOG
+func (s *GatewayService) GetEvents(w http.ResponseWriter, r *http.Request) {
+    s.catalogProxy.Forward(w, r, "/events")
 }

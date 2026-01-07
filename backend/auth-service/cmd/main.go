@@ -43,7 +43,7 @@ func main() {
 
     r := setupRouter(authHandler)
     
-    port := getEnv("PORT", "8080")
+    port := getEnv("PORT", "8081")
     log.Printf("Server started on port :%s", port)
     r.Run(":" + port)
 }
