@@ -22,7 +22,7 @@ RUN cargo build --release
 
 # 2. Etapa final (Imagen de producción)
 FROM alpine:latest
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates libgcc libstdc++
 
 WORKDIR /root/
 # Copiamos el binario desde la etapa builder
