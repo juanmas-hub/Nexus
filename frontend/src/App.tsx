@@ -5,7 +5,7 @@ import EventCard from "./components/EventCard";
 import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import { ArrowRight, Loader2 } from "lucide-react";
-import type { Event } from "./types"; 
+import type { EventItem } from "./types"; 
 import { useAuth } from "./context/AuthContext";
 import { getEvents } from "./api/eventsService";
 
@@ -13,7 +13,7 @@ function App() {
   const { isAuthenticated } = useAuth();
   const [authView, setAuthView] = useState<"login" | "register">("login");
   
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<EventItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,7 +68,7 @@ function App() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-              {events.map((event: Event) => (
+              {events.map((event: EventItem) => (
                 <EventCard key={event.id} event={event} />
               ))}
             </div>
