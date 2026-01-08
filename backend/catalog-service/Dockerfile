@@ -28,6 +28,7 @@ WORKDIR /root/
 # Copiamos el binario desde la etapa builder
 COPY --from=builder /app/target/release/catalog-service .
 
+# Puerto estándar para microservicios
 EXPOSE 8080
 
 CMD ["./catalog-service"]
