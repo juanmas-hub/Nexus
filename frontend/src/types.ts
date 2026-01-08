@@ -1,9 +1,11 @@
 export interface EventItem {
-  id: number;
+  id: string;
   title: string;
-  date: string;
+  description?: string;
+  image: string;
+  category: string; 
+  event_date: string;  
   location: string;
   price: number;
-  image: string;
-  category: string;
+  capacity: number;
 }

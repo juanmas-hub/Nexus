@@ -21,7 +21,12 @@ func main() {
 		log.Fatalf("Error configurando Proxy de Auth: %v", err)
 	}
 
-	gatewayService := services.NewGatewayService(authProxy)
+	catalogProxy, err := proxy.NewHTTPProxy(cfg.CatalogServiceURL)
+	if err != nil {
+    	log.Fatalf("Error configurando Proxy de Catalog: %v", err)
+	}
+
+	gatewayService := services.NewGatewayService(authProxy, catalogProxy)
 
 	gatewayHandler := httpHandler.NewGatewayHandler(gatewayService)
 

@@ -17,6 +17,8 @@ func NewGatewayHandler(s *services.GatewayService) *GatewayHandler {
 func (h *GatewayHandler) SetupRoutes(r chi.Router) {
 	r.Post("/login", h.Login)
 	r.Post("/register", h.Register)
+
+	r.Get("/events", h.GetEvents)
 }
 
 func (h *GatewayHandler) Login(w http.ResponseWriter, r *http.Request) {
@@ -25,4 +27,8 @@ func (h *GatewayHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 func (h *GatewayHandler) Register(w http.ResponseWriter, r *http.Request) {
 	h.service.Register(w, r)
+}
+
+func (h *GatewayHandler) GetEvents(w http.ResponseWriter, r *http.Request) {
+    h.service.GetEvents(w, r)
 }

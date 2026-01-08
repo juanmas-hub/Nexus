@@ -22,7 +22,7 @@ const RegisterForm = ({ onSwitchLogin }: RegisterFormProps) => {
         setIsLoading(true);
 
         try {
-            await api.post('/auth/register', formData);
+            await api.post('/register', formData);
             setSuccess(true);
             setTimeout(() => onSwitchLogin(), 2000);
         } catch (err: any) {

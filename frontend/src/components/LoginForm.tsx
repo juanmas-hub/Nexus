@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { api } from '../api/axios';
+//import { api } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
 interface LoginFormProps {
@@ -19,8 +19,7 @@ const LoginForm = ({ onSwitchRegister }: LoginFormProps) => {
         setIsLoading(true);
 
         try {
-            await api.post('/auth/login', { email, password });
-            login(); 
+            await login(email, password); 
         } catch (err: any) {
             setError(err.response?.data?.error || 'Credenciales inválidas');
         } finally {
