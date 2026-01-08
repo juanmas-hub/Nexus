@@ -22,13 +22,12 @@ RUN cargo build --release
 
 # 2. Etapa final (Imagen de producción)
 FROM alpine:latest
-RUN apk add --no-cache ca-certificates libgcc libstdc++
+RUN apk add --no-cache ca-certificates libgcc libstdc++ gcompat libc6-compat
 
 WORKDIR /root/
 # Copiamos el binario desde la etapa builder
 COPY --from=builder /app/target/release/catalog-service .
 
-# Puerto estándar para microservicios
-EXPOSE 8080
+EXPOSE 8082
 
 CMD ["./catalog-service"]
