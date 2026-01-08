@@ -9,16 +9,14 @@ COPY Cargo.toml Cargo.lock ./
 RUN mkdir src && echo "fn main() {}" > src/main.rs && cargo build --release && rm -rf src
 
 COPY . .
-
 RUN cargo build --release
 
 FROM alpine:latest
-WORKDIR /root/
-
 RUN apk add --no-cache ca-certificates
 
+WORKDIR /root/
 COPY --from=builder /app/target/release/catalog-service .
 
-EXPOSE 8082
+EXPOSE 8080
 
 CMD ["./catalog-service"]

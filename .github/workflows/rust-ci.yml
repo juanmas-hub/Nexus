@@ -1,0 +1,30 @@
+name: Rust CI (Nexus)
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  build:
+    name: Compilar Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Rust (v1.92.0)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.92.0
+
+      - name: Cache de dependencias
+        uses: Swatinem/rust-cache@v2
+        with:
+          working-directory: backend/catalog-service
+
+      - name: Compilar Catalog Service
+        run: cargo build --release
+        working-directory: backend/catalog-service
