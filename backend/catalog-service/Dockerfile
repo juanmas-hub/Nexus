@@ -22,7 +22,6 @@ RUN cargo build --release
 
 # 2. Etapa final (Imagen de producción)
 FROM alpine:latest
-
 RUN apk add --no-cache ca-certificates libgcc libstdc++ gcompat libc6-compat
 
 WORKDIR /root/
