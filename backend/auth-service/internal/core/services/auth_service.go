@@ -20,11 +20,17 @@ func NewAuthService(repo ports.UserRepository) *AuthService {
 
 func (s *AuthService) Login(email, password string) (string, error) {
 	user, err := s.repo.GetByEmail(email)
-	if err != nil || !checkPasswordHash(password, user.Password) {
-		return "", errors.New("credenciales inválidas")
-	}
+    
+    if err != nil || user == nil {
+        return "", errors.New("credenciales inválidas")
+    }
 
-	return generateToken(user)
+    err = checkPasswordHash(password, user.Password)
+    if err != nil {
+        return "", errors.New("credenciales inválidas")
+    }
+
+    return generateToken(user)
 }
 
 func (s *AuthService) Register(user *domain.User) error {
