@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/services"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 type GatewayHandler struct {
@@ -15,6 +16,8 @@ func NewGatewayHandler(s *services.GatewayService) *GatewayHandler {
 }
 
 func (h *GatewayHandler) SetupRoutes(r chi.Router) {
+	r.Use(middleware.Logger)
+    r.Use(middleware.Recoverer)
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
         w.Header().Set("Content-Type", "application/json")
         w.WriteHeader(http.StatusOK)
