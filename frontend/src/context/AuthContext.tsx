@@ -14,11 +14,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return !!localStorage.getItem('token');
     });
 
-    // Cambiamos 'credentials' por los dos argumentos que espera el LoginForm
     const login = async (email: string, password: string) => {
         try {
-            // Enviamos el objeto al Gateway (puerto 8080)
-            // IMPORTANTE: Sin el prefijo "/auth" para que el Gateway lo encuentre
             const response = await api.post('/login', { email, password });
             
             const { token } = response.data;
