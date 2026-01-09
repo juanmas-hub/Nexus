@@ -15,6 +15,11 @@ func NewGatewayHandler(s *services.GatewayService) *GatewayHandler {
 }
 
 func (h *GatewayHandler) SetupRoutes(r chi.Router) {
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusOK)
+        w.Write([]byte(`{"status": "ok", "service": "gateway"}`))
+    })
 	r.Post("/login", h.Login)
 	r.Post("/register", h.Register)
 
