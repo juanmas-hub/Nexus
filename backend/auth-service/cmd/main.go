@@ -68,6 +68,13 @@ func connectDB(dsn string) *gorm.DB {
 func setupRouter(h *http.AuthHandler) *gin.Engine {
 	r := gin.Default()
 
+	r.GET("/health", func(c *gin.Context) {
+        c.JSON(200, gin.H{
+            "status": "ok",
+            "service": "auth-service",
+        })
+    })
+
 	r.POST("/auth/login", h.Login)
 	r.POST("/auth/register", h.Register)
 

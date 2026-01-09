@@ -11,3 +11,7 @@ pub async fn get_events(
         Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, err).into_response(),
     }
 }
+
+pub async fn health_check() -> impl IntoResponse {
+    (StatusCode::OK, "ok")
+}
