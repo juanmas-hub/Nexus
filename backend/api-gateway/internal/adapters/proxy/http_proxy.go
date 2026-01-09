@@ -24,6 +24,6 @@ func NewHTTPProxy(targetURL string) (*HTTPProxy, error) {
 
 func (p *HTTPProxy) Forward(w http.ResponseWriter, r *http.Request, targetPath string) {
 	r.URL.Path = targetPath
-	r.Host = p.target.Host
+	//r.Host = p.target.Host
 	p.proxy.ServeHTTP(w, r)
 }
