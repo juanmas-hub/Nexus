@@ -5,43 +5,46 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/rs/cors"
-	
+
+	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/adapters/clients"
 	httpHandler "github.com/juanmas-hub/nexus/backend/api-gateway/internal/adapters/handler/http"
 	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/config"
-	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/adapters/proxy"
 	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/services"
 )
 
 func main() {
 	cfg := config.Load()
 
-	authProxy, err := proxy.NewHTTPProxy(cfg.AuthServiceURL)
-	if err != nil {
-		log.Fatalf("Error configurando Proxy de Auth: %v", err)
-	}
+	gatewayRouter := setupDependencyInjection(cfg)
 
-	catalogProxy, err := proxy.NewHTTPProxy(cfg.CatalogServiceURL)
-	if err != nil {
-    	log.Fatalf("Error configurando Proxy de Catalog: %v", err)
-	}
+	startServer(cfg.Port, gatewayRouter)
+}
 
-	gatewayService := services.NewGatewayService(authProxy, catalogProxy)
+func setupDependencyInjection(configuration *config.Config) *chi.Mux {
+	// Adaptadores de Salida
+	authServiceClient := clients.NewHTTPAuthClient(configuration.AuthServiceURL, configuration.AuthServiceTimeout)
 
+	// Servicios
+	gatewayService := services.NewGatewayService(authServiceClient)
+
+	// Adaptadores de Entrada
 	gatewayHandler := httpHandler.NewGatewayHandler(gatewayService)
 
-	r := chi.NewRouter()
+	// Configuración del router
+	router := chi.NewRouter()
+	httpHandler.ApplyCORSConfiguration(router, configuration.AllowedOrigins)
+	httpHandler.ApplyInfrastructureMiddlewares(router)
+	gatewayHandler.SetupRoutes(router)
 
-	r.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173", "https://nexus-b6b.pages.dev"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
-		AllowCredentials: true,
-	}).Handler)
+	return router
+}
 
-	gatewayHandler.SetupRoutes(r)
 
-	if err := http.ListenAndServe(":"+cfg.Port, r); err != nil {
-		log.Fatal(err)
+func startServer(port string, router *chi.Mux) {
+	serverAddress := ":" + port
+	log.Printf("[GATEWAY START] %s", serverAddress)
+
+	if err := http.ListenAndServe(serverAddress, router); err != nil {
+		log.Fatalf("[CRITICAL ERROR] El servidor falló: %v", err)
 	}
 }

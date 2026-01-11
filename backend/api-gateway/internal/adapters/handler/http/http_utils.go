@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/rs/cors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -29,4 +30,15 @@ func RespondWithError(responseWriter http.ResponseWriter, statusCode int, messag
 func ApplyInfrastructureMiddlewares(gatewayRouter chi.Router) {
 	gatewayRouter.Use(middleware.Logger)
 	gatewayRouter.Use(middleware.Recoverer)
+}
+
+func ApplyCORSConfiguration(router *chi.Mux, allowedOrigins []string) {
+	corsOptions := cors.New(cors.Options{
+		AllowedOrigins:   allowedOrigins,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowCredentials: true,
+	})
+	
+	router.Use(corsOptions.Handler)
 }
