@@ -2,15 +2,14 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	//"github.com/gin-contrib/cors"
 
 	"nexus/auth-service/internal/core/ports" 
+	"nexus/auth-service/internal/config"
     "nexus/auth-service/internal/adapters/repository/memory"
 	"nexus/auth-service/internal/adapters/handler/http"
 	repository "nexus/auth-service/internal/adapters/repository/postgres"
@@ -19,18 +18,16 @@ import (
 )
 
 func main() {
-    loadEnv()
+    cfg := config.Load()
 
-    var userRepo ports.UserRepository 
+    var userRepo ports.UserRepository
 
-    appMode := getEnv("APP_MODE", "prod")
-
-    if appMode == "dev" {
+    if cfg.APP_MODE == "dev" {
         log.Println("Mode: Development")
         userRepo = memory.NewMemoryUserRepository() 
     } else {
         log.Println("Mode: Production")
-        db := connectDB(os.Getenv("DATABASE_URL"))
+        db := connectDB(cfg.DATABASE_URL)
         userRepo = repository.NewPostgresRepository(db)
     }
 
@@ -39,18 +36,11 @@ func main() {
 
     r := setupRouter(authHandler)
     
-    port := getEnv("PORT", "8081")
-    log.Printf("Server started on port :%s", port)
-    r.Run(":" + port)
+    log.Printf("Server started on port :%s", cfg.Port)
+    r.Run(":" + cfg.Port)
 }
 
 // AUX
-
-func loadEnv() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("Info: .env file not found, using system environment variables")
-	}
-}
 
 func connectDB(dsn string) *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -79,11 +69,4 @@ func setupRouter(h *http.AuthHandler) *gin.Engine {
 	r.POST("/auth/register", h.Register)
 
 	return r
-}
-
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return fallback
 }
