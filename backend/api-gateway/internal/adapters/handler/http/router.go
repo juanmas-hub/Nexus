@@ -22,7 +22,7 @@ func (handler *GatewayHandler) SetupRoutes(router chi.Router) {
     router.Get("/health", handler.HealthCheck)
     router.Post("/login", handler.Login)
     
-    // router.Post("/register", handler.Register)
+    router.Post("/register", handler.Register)
     // router.Get("/events", handler.GetEvents)
 }
 
@@ -49,4 +49,20 @@ func (handler *GatewayHandler) Login(responseWriter http.ResponseWriter, httpReq
     }
 
     RespondWithJSON(responseWriter, http.StatusOK, loginResponse)
+}
+
+func (handler *GatewayHandler) Register(responseWriter http.ResponseWriter, httpRequest *http.Request) {
+    var registerRequest domain.RegisterRequest
+
+    if !DecodeJSONBody(responseWriter, httpRequest, &registerRequest) {
+        return
+    }
+
+    registerResponse, err := handler.service.Register(httpRequest.Context(), registerRequest)
+    if err != nil {
+        RespondWithError(responseWriter, http.StatusConflict, "No se pudo completar el registro: el usuario ya existe")
+        return
+    }
+
+    RespondWithJSON(responseWriter, http.StatusOK, registerResponse)
 }

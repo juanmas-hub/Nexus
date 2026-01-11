@@ -25,9 +25,17 @@ func (service *GatewayService) Login(ctx context.Context, request domain.LoginRe
     return response, nil
 }
 
-/*func (s *GatewayService) Register(w http.ResponseWriter, r *http.Request) {
-	s.authProxy.Forward(w, r, "/auth/register")
+func (service *GatewayService) Register(ctx context.Context, request domain.RegisterRequest) (*domain.RegisterResponse, error) {
+	response, err := service.authClient.Register(ctx, request)
+
+    if err != nil {
+        return nil, err
+    }
+
+    return response, nil
 }
+
+/*
 
 // CATALOG
 func (s *GatewayService) GetEvents(w http.ResponseWriter, r *http.Request) {

@@ -7,4 +7,5 @@ import (
 
 type AuthClient interface {
     Authenticate(ctx context.Context, request domain.LoginRequest) (*domain.LoginResponse, error)
+    Register(ctx context.Context, request domain.RegisterRequest) (*domain.RegisterResponse, error)
 }

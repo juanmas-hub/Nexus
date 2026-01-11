@@ -28,3 +28,9 @@ func (c *HTTPAuthClient) Authenticate(ctx context.Context, request domain.LoginR
     
     return doRequest[domain.LoginResponse](ctx, c.httpClient, "POST", url, request)
 }
+
+func (c *HTTPAuthClient) Register(ctx context.Context, request domain.RegisterRequest) (*domain.RegisterResponse, error) {
+    url := c.baseURL + "/auth/register"
+
+    return doRequest[domain.RegisterResponse](ctx, c.httpClient, "POST", url, request)
+}
