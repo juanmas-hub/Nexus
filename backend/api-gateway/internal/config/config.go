@@ -6,6 +6,7 @@ import (
 
 type Config struct {
     AuthServiceURL    string
+    AuthServiceTimeout string
     CatalogServiceURL string
     Port              string
 }
@@ -13,6 +14,7 @@ type Config struct {
 func Load() *Config {
     return &Config{
         AuthServiceURL:    getEnv("AUTH_SERVICE_URL", "http://localhost:8081"),
+        AuthServiceTimeout: getEnv("AUTH_SERVICE_TIMEOUT", "60s"),
         CatalogServiceURL: getEnv("CATALOG_SERVICE_URL", "http://localhost:8082"),
         Port:              getEnv("PORT", "8080"),
     }
