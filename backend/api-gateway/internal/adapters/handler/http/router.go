@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"github.com/go-chi/chi/v5"
 
+    "os"
+
 	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/services"
 	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/domain"
 )
@@ -47,6 +49,18 @@ func (handler *GatewayHandler) Login(responseWriter http.ResponseWriter, httpReq
         RespondWithError(responseWriter, http.StatusUnauthorized, "Credenciales inválidas o error de conexión")
         return
     }
+
+    isProd := os.Getenv("APP_ENV") == "prod"
+
+    http.SetCookie(responseWriter, &http.Cookie{
+        Name:     "auth_token",
+        Value:    loginResponse.Token,
+        Path:     "/",
+        HttpOnly: true,
+        Secure:   isProd,
+        SameSite: http.SameSiteLaxMode,
+        MaxAge:   3600,
+    })
 
     RespondWithJSON(responseWriter, http.StatusOK, loginResponse)
 }

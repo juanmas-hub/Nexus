@@ -18,39 +18,32 @@ func NewAuthHandler(service ports.AuthService) *AuthHandler {
     }
 }
 
-type loginRequest struct {
-    Email    string `json:"email" binding:"required,email"`
-    Password string `json:"password" binding:"required"`
-}
-
-func (h *AuthHandler) Login(c *gin.Context) {
-    var req loginRequest
-
-    if err := c.ShouldBindJSON(&req); err != nil {
+func (handler *AuthHandler) Login(c *gin.Context) {
+    var request domain.LoginRequest
+    if err := c.ShouldBindJSON(&request); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
-    token, err := h.authService.Login(req.Email, req.Password)
+    user, token, err := handler.authService.Login(request.Email, request.Password)
     if err != nil {
-       
         c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciales inválidas"})
         return
     }
 
-    c.SetCookie("auth_token", token, 3600, "/", "localhost", false, true)
-    c.JSON(http.StatusOK, gin.H{"message": "Login exitoso"})
-}
-
-type registerRequest struct {
-    Email     string `json:"email" binding:"required,email"`
-    Password  string `json:"password" binding:"required,min=6"`
-    FirstName string `json:"first_name" binding:"required"`
-    LastName  string `json:"last_name" binding:"required"`
+    c.JSON(http.StatusOK, domain.LoginResponse{
+        Token: token,
+        User: domain.UserDTO{
+            ID:        user.ID,
+            Email:     user.Email,
+            FirstName: user.FirstName,
+            LastName:  user.LastName,
+        },
+    })
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
-    var req registerRequest
+    var req domain.RegisterRequest
 
     if err := c.ShouldBindJSON(&req); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

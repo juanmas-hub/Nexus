@@ -18,19 +18,22 @@ func NewAuthService(repo ports.UserRepository) *AuthService {
 	}
 }
 
-func (s *AuthService) Login(email, password string) (string, error) {
-	user, err := s.repo.GetByEmail(email)
-    
+func (s *AuthService) Login(email, password string) (*domain.User, string, error) {
+    user, err := s.repo.GetByEmail(email)
     if err != nil || user == nil {
-        return "", errors.New("credenciales inválidas")
+        return nil, "", errors.New("credenciales inválidas")
     }
 
-    err = checkPasswordHash(password, user.Password)
+    if err := checkPasswordHash(password, user.Password); err != nil {
+        return nil, "", errors.New("credenciales inválidas")
+    }
+
+    token, err := generateToken(user)
     if err != nil {
-        return "", errors.New("credenciales inválidas")
+        return nil, "", err
     }
 
-    return generateToken(user)
+    return user, token, nil
 }
 
 func (s *AuthService) Register(user *domain.User) error {

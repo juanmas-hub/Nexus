@@ -4,6 +4,6 @@ import(
 )
 
 type AuthService interface {
-    Login(email, password string) (string, error)
+    Login(email, password string) (*domain.User, string, error)
     Register(user *domain.User) error
 }
