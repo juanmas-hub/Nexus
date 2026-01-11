@@ -2,9 +2,10 @@ package http
 
 import (
 	"net/http"
-	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/services"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+
+	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/services"
+	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/domain"
 )
 
 type GatewayHandler struct {
@@ -15,28 +16,37 @@ func NewGatewayHandler(s *services.GatewayService) *GatewayHandler {
 	return &GatewayHandler{service: s}
 }
 
-func (h *GatewayHandler) SetupRoutes(r chi.Router) {
-	r.Use(middleware.Logger)
-    r.Use(middleware.Recoverer)
-	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-        w.Header().Set("Content-Type", "application/json")
-        w.WriteHeader(http.StatusOK)
-        w.Write([]byte(`{"status": "ok", "service": "gateway"}`))
-    })
-	r.Post("/login", h.Login)
-	r.Post("/register", h.Register)
+func (handler *GatewayHandler) SetupRoutes(router chi.Router) {
+    ApplyInfrastructureMiddlewares(router)
 
-	r.Get("/events", h.GetEvents)
+    router.Get("/health", handler.HealthCheck)
+    router.Post("/login", handler.Login)
+    
+    // router.Post("/register", handler.Register)
+    // router.Get("/events", handler.GetEvents)
 }
 
-func (h *GatewayHandler) Login(w http.ResponseWriter, r *http.Request) {
-	h.service.Login(w, r)
+func (handler *GatewayHandler) HealthCheck(responseWriter http.ResponseWriter, httpRequest *http.Request) {
+    healthResponse := domain.HealthResponse{
+        Status:  "ok",
+        Service: "gateway",
+    }
+    
+    RespondWithJSON(responseWriter, http.StatusOK, healthResponse)
 }
 
-func (h *GatewayHandler) Register(w http.ResponseWriter, r *http.Request) {
-	h.service.Register(w, r)
-}
+func (handler *GatewayHandler) Login(responseWriter http.ResponseWriter, httpRequest *http.Request) {
+    var loginRequest domain.LoginRequest
 
-func (h *GatewayHandler) GetEvents(w http.ResponseWriter, r *http.Request) {
-    h.service.GetEvents(w, r)
+    if !DecodeJSONBody(responseWriter, httpRequest, &loginRequest) {
+        return
+    }
+
+    loginResponse, err := handler.service.Login(httpRequest.Context(), loginRequest)
+    if err != nil {
+        RespondWithError(responseWriter, http.StatusUnauthorized, "Credenciales inválidas o error de conexión")
+        return
+    }
+
+    RespondWithJSON(responseWriter, http.StatusOK, loginResponse)
 }
