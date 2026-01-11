@@ -70,5 +70,13 @@ func (h *AuthHandler) Register(c *gin.Context) {
         return
     }
 
-    c.JSON(http.StatusCreated, gin.H{"message": "Usuario creado exitosamente"})
+    c.JSON(http.StatusCreated, gin.H{
+        "message": "Usuario creado exitosamente",
+        "user": gin.H{
+            "id":         user.ID,
+            "email":      user.Email,
+            "first_name": user.FirstName,
+            "last_name":  user.LastName,
+        },
+    })
 }
