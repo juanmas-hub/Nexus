@@ -1,7 +1,9 @@
 package repository
 
 import (
+    "log"
     "gorm.io/gorm"
+	"gorm.io/driver/postgres"
     "nexus/auth-service/internal/core/domain"
     "nexus/auth-service/internal/core/ports"
 )
@@ -31,4 +33,17 @@ func (r *PostgresRepository) GetByEmail(email string) (*domain.User, error) {
 
 func (r *PostgresRepository) Save(user *domain.User) error {
     return r.db.Create(user).Error
+}
+
+func ConnectDB(dsn string) *gorm.DB {
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Failed to connect to the database: ", err)
+	}
+
+	log.Println("Running database migrations...")
+	if err := db.AutoMigrate(&domain.User{}); err != nil {
+		log.Fatal("Database migration failed: ", err)
+	}
+	return db
 }

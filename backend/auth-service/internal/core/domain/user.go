@@ -32,6 +32,25 @@ type LoginRequest struct {
     Password string `json:"password" binding:"required"`
 }
 
+func (u *User) ToDTO() UserDTO {
+	return UserDTO{
+		ID:        u.ID,
+		Email:     u.Email,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+	}
+}
+
+func (r RegisterRequest) ToDomain() *User {
+	return &User{
+		Email:     r.Email,
+		Password:  r.Password,
+		FirstName: r.FirstName,
+		LastName:  r.LastName,
+		Role:      RoleUser,
+	}
+}
+
 type LoginResponse struct {
     Token string  `json:"token"`
     User  UserDTO `json:"user"`
