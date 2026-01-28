@@ -11,7 +11,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return !!localStorage.getItem('token');
+        return !!sessionStorage.getItem('token');
     });
 
     const login = async (email: string, password: string) => {
@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const response = await api.post('/login', { email, password });
             
             const { token } = response.data;
-            localStorage.setItem('token', token);
+            sessionStorage.setItem('token', token);
             setIsAuthenticated(true);
         } catch (error) {
             console.error("Error en el login de Nexus:", error);
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
         setIsAuthenticated(false);
     };
 

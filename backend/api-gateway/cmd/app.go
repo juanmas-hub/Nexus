@@ -18,7 +18,7 @@ func setupDependencyInjection(configuration *config.Config) *chi.Mux {
 	gatewayService := services.NewGatewayService(authServiceClient)
 
 	// Adaptadores de Entrada
-	gatewayHandler := httpHandler.NewGatewayHandler(gatewayService)
+	gatewayHandler := httpHandler.NewGatewayHandler(gatewayService, configuration.IsProd)
 
 	// Configuración del router
 	router := chi.NewRouter()

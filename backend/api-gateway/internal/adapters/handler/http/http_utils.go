@@ -30,7 +30,7 @@ func RespondWithError(responseWriter http.ResponseWriter, statusCode int, messag
 func ApplyInfrastructureMiddlewares(gatewayRouter chi.Router) {
 	gatewayRouter.Use(middleware.Logger)
 	gatewayRouter.Use(middleware.Recoverer)
-}
+} 
 
 func ApplyCORSConfiguration(router *chi.Mux, allowedOrigins []string) {
 	corsOptions := cors.New(cors.Options{
