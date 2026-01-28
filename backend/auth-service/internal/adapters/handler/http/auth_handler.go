@@ -6,69 +6,56 @@ import (
 
     "nexus/auth-service/internal/core/ports"
     "nexus/auth-service/internal/core/domain"
+    "nexus/auth-service/internal/core/services"
 )
 
 type AuthHandler struct {
-    authService ports.AuthService
+	authService ports.AuthService
 }
 
-func NewAuthHandler(service ports.AuthService) *AuthHandler {
-    return &AuthHandler{
-        authService: service,
-    }
+func NewAuthHandler(s *services.AuthService) *AuthHandler {
+	return &AuthHandler{authService: s}
 }
 
-type loginRequest struct {
-    Email    string `json:"email" binding:"required,email"`
-    Password string `json:"password" binding:"required"`
+func (h *AuthHandler) SetupRoutes(r *gin.Engine) {
+	auth := r.Group("/auth")
+	{
+		auth.POST("/login", h.Login)
+		auth.POST("/register", h.Register)
+	}
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
-    var req loginRequest
+	var req domain.LoginRequest
 
-    if err := c.ShouldBindJSON(&req); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	if !DecodeJSON(c, &req) {
+		return
+	}
 
-    token, err := h.authService.Login(req.Email, req.Password)
-    if err != nil {
-       
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciales inválidas"})
-        return
-    }
+	user, token, err := h.authService.Login(req.Email, req.Password)
+	if err != nil {
+		RespondWithError(c, http.StatusUnauthorized, "Credenciales inválidas")
+		return
+	}
 
-    c.SetCookie("auth_token", token, 3600, "/", "localhost", false, true)
-    c.JSON(http.StatusOK, gin.H{"message": "Login exitoso"})
-}
-
-type registerRequest struct {
-    Email     string `json:"email" binding:"required,email"`
-    Password  string `json:"password" binding:"required,min=6"`
-    FirstName string `json:"first_name" binding:"required"`
-    LastName  string `json:"last_name" binding:"required"`
+	RespondWithJSON(c, http.StatusOK, domain.LoginResponse{
+		Token: token,
+		User:  user.ToDTO(),
+	})
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
-    var req registerRequest
+	var req domain.RegisterRequest
 
-    if err := c.ShouldBindJSON(&req); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	if !DecodeJSON(c, &req) {
+		return
+	}
 
-    user := &domain.User{
-        Email:     req.Email,
-        Password:  req.Password,
-        FirstName: req.FirstName,
-        LastName:  req.LastName,
-        Role:      domain.RoleUser,
-    }
+	err := h.authService.Register(req.ToDomain()) 
+	if err != nil {
+		RespondWithError(c, http.StatusConflict, err.Error())
+		return
+	}
 
-    if err := h.authService.Register(user); err != nil {
-        c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-        return
-    }
-
-    c.JSON(http.StatusCreated, gin.H{"message": "Usuario creado exitosamente"})
+	RespondWithJSON(c, http.StatusCreated, gin.H{"message": "Usuario creado exitosamente"})
 }

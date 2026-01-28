@@ -1,42 +1,16 @@
 package http
 
 import (
-	"net/http"
-	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/services"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 )
 
-type GatewayHandler struct {
-	service *services.GatewayService
+func (handler *GatewayHandler) SetupRoutes(router chi.Router) {
+    //ApplyInfrastructureMiddlewares(router)
+
+    router.Get("/health", handler.HealthCheck)
+    router.Post("/login", handler.Login)
+    
+    router.Post("/register", handler.Register)
+    // router.Get("/events", handler.GetEvents)
 }
 
-func NewGatewayHandler(s *services.GatewayService) *GatewayHandler {
-	return &GatewayHandler{service: s}
-}
-
-func (h *GatewayHandler) SetupRoutes(r chi.Router) {
-	r.Use(middleware.Logger)
-    r.Use(middleware.Recoverer)
-	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-        w.Header().Set("Content-Type", "application/json")
-        w.WriteHeader(http.StatusOK)
-        w.Write([]byte(`{"status": "ok", "service": "gateway"}`))
-    })
-	r.Post("/login", h.Login)
-	r.Post("/register", h.Register)
-
-	r.Get("/events", h.GetEvents)
-}
-
-func (h *GatewayHandler) Login(w http.ResponseWriter, r *http.Request) {
-	h.service.Login(w, r)
-}
-
-func (h *GatewayHandler) Register(w http.ResponseWriter, r *http.Request) {
-	h.service.Register(w, r)
-}
-
-func (h *GatewayHandler) GetEvents(w http.ResponseWriter, r *http.Request) {
-    h.service.GetEvents(w, r)
-}

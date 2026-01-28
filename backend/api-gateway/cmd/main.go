@@ -1,47 +1,14 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/rs/cors"
-	
-	httpHandler "github.com/juanmas-hub/nexus/backend/api-gateway/internal/adapters/handler/http"
 	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/config"
-	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/adapters/proxy"
-	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/services"
+	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/infra"
 )
 
 func main() {
 	cfg := config.Load()
 
-	authProxy, err := proxy.NewHTTPProxy(cfg.AuthServiceURL)
-	if err != nil {
-		log.Fatalf("Error configurando Proxy de Auth: %v", err)
-	}
+	gatewayRouter := setupDependencyInjection(cfg)
 
-	catalogProxy, err := proxy.NewHTTPProxy(cfg.CatalogServiceURL)
-	if err != nil {
-    	log.Fatalf("Error configurando Proxy de Catalog: %v", err)
-	}
-
-	gatewayService := services.NewGatewayService(authProxy, catalogProxy)
-
-	gatewayHandler := httpHandler.NewGatewayHandler(gatewayService)
-
-	r := chi.NewRouter()
-
-	r.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173", "https://nexus-b6b.pages.dev"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
-		AllowCredentials: true,
-	}).Handler)
-
-	gatewayHandler.SetupRoutes(r)
-
-	if err := http.ListenAndServe(":"+cfg.Port, r); err != nil {
-		log.Fatal(err)
-	}
+	infra.StartServer(cfg.Port, gatewayRouter)
 }

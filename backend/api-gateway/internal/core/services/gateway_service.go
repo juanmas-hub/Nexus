@@ -1,32 +1,43 @@
 package services
 
 import (
-	"net/http"
-	"github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/ports"
+    "context"
+    "github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/domain"
+    "github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/ports"
 )
 
 type GatewayService struct {
-    authProxy    ports.ProxyProvider
-    catalogProxy ports.ProxyProvider
+    authClient ports.AuthClient
 }
 
-func NewGatewayService(auth ports.ProxyProvider, catalog ports.ProxyProvider) *GatewayService {
+func NewGatewayService(ac ports.AuthClient) *GatewayService {
     return &GatewayService{
-        authProxy:    auth,
-        catalogProxy: catalog,
+        authClient: ac,
     }
 }
 
-// AUTH
-func (s *GatewayService) Login(w http.ResponseWriter, r *http.Request) {
-	s.authProxy.Forward(w, r, "/auth/login")
+func (service *GatewayService) Login(ctx context.Context, request domain.LoginRequest) (*domain.LoginResponse, error) {
+    response, err := service.authClient.Authenticate(ctx, request)
+    if err != nil {
+        return nil, err
+    }
+
+    return response, nil
 }
 
-func (s *GatewayService) Register(w http.ResponseWriter, r *http.Request) {
-	s.authProxy.Forward(w, r, "/auth/register")
+func (service *GatewayService) Register(ctx context.Context, request domain.RegisterRequest) (*domain.RegisterResponse, error) {
+	response, err := service.authClient.Register(ctx, request)
+
+    if err != nil {
+        return nil, err
+    }
+
+    return response, nil
 }
+
+/*
 
 // CATALOG
 func (s *GatewayService) GetEvents(w http.ResponseWriter, r *http.Request) {
     s.catalogProxy.Forward(w, r, "/events")
-}
+}*/
