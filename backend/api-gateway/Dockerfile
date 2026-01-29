@@ -10,7 +10,7 @@ RUN go mod download
 COPY . .
 
 # Compilamos el binario (lo llamamos 'main' para que coincida con auth-service)
-RUN CGO_ENABLED=0 GOOS=linux go build -o main cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd
 
 # Stage 2: Runtime
 FROM alpine:latest
