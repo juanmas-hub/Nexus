@@ -35,9 +35,6 @@ func (service *GatewayService) Register(ctx context.Context, request domain.Regi
     return response, nil
 }
 
-/*
-
-// CATALOG
 func (s *GatewayService) GetEvents(w http.ResponseWriter, r *http.Request) {
     s.catalogProxy.Forward(w, r, "/events")
-}*/
+}
