@@ -8,11 +8,13 @@ import (
 
 type GatewayService struct {
     authClient ports.AuthClient
+    catalogClient ports.CatalogClient
 }
 
-func NewGatewayService(ac ports.AuthClient) *GatewayService {
+func NewGatewayService(ac ports.AuthClient, cc ports.CatalogClient) *GatewayService {
     return &GatewayService{
         authClient: ac,
+        catalogClient: cc,
     }
 }
 
@@ -35,6 +37,12 @@ func (service *GatewayService) Register(ctx context.Context, request domain.Regi
     return response, nil
 }
 
-func (s *GatewayService) GetEvents(w http.ResponseWriter, r *http.Request) {
-    s.catalogProxy.Forward(w, r, "/events")
+func (service *GatewayService) GetEvents(ctx context.Context) (*domain.GetEventsResponse, error){
+    response, err := service.catalogClient.GetEvents(ctx)
+
+    if err != nil {
+        return nil, err
+    }
+
+    return response, nil
 }
