@@ -11,6 +11,6 @@ func (handler *GatewayHandler) SetupRoutes(router chi.Router) {
     router.Post("/login", handler.Login)
     
     router.Post("/register", handler.Register)
-    // router.Get("/events", handler.GetEvents)
+    router.Get("/events", handler.GetEvents)
 }
 

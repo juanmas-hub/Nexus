@@ -6,6 +6,9 @@ use std::{env, sync::Arc, time::Duration};
 use sqlx::postgres::PgPoolOptions;
 use dotenvy::dotenv;
 use tokio::time::sleep;
+use tower_http::trace::{self, TraceLayer};
+use tracing::Level;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() {
@@ -13,6 +16,14 @@ async fn main() {
     
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let port = env::var("PORT").unwrap_or_else(|_| "8082".to_string());
+
+    // 1. Configuración del Logger para producción
+    // En microservicios, a veces menos es más. Usamos 'info' por defecto.
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| "info".into()))
+        .with(tracing_subscriber::fmt::layer().compact())
+        .init();
 
     println!("Attempting to connect to database...");
 
@@ -44,7 +55,16 @@ async fn main() {
     let repo = Arc::new(adapters::db::postgres_repo::PostgresEventRepository::new(pool))
         as Arc<dyn ports::EventRepository>;
 
-    let app = adapters::api::create_routes(repo);
+    // 2. El Middleware optimizado
+    let app = adapters::api::create_routes(repo)
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(trace::DefaultMakeSpan::new()
+                    .level(Level::INFO))
+                .on_response(trace::DefaultOnResponse::new()
+                    .level(Level::INFO)
+                    .latency_unit(tower_http::LatencyUnit::Millis))
+    );
 
     let address = format!("0.0.0.0:{}", port);
     println!("Catalog Service running on http://{}", address);

@@ -7,9 +7,10 @@ import (
 )
 
 type Config struct {
-    AuthServiceURL    	string
-    AuthServiceTimeout 	time.Duration
-    CatalogServiceURL 	string
+    AuthServiceURL    		string
+    AuthServiceTimeout 		time.Duration
+    CatalogServiceURL 		string
+	CatalogServiceTimeout	time.Duration
 
 	IsProd				bool		
     AllowedOrigins 		[]string
@@ -24,6 +25,7 @@ func Load() *Config {
 		AuthServiceURL:     os.Getenv("AUTH_SERVICE_URL"),
 		AuthServiceTimeout: parseDurationEnv("AUTH_SERVICE_TIMEOUT", "30s"),
 		CatalogServiceURL:  os.Getenv("CATALOG_SERVICE_URL"),
+		CatalogServiceTimeout: parseDurationEnv("CATALOG_SERVICE_TIMEOUT", "30s"),
 		AllowedOrigins:     []string{"http://localhost:5173", "https://nexus-b6b.pages.dev"},
 		IsProd: 			os.Getenv("APP_MODE") == "prod",
 	}

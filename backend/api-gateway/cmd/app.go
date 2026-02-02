@@ -13,9 +13,10 @@ import(
 func setupDependencyInjection(configuration *config.Config) *chi.Mux {
 	// Adaptadores de Salida
 	authServiceClient := clients.NewHTTPAuthClient(configuration.AuthServiceURL, configuration.AuthServiceTimeout)
+	catalogServiceClient := clients.NewHTTPCatalogClient(configuration.CatalogServiceURL, configuration.CatalogServiceTimeout)
 
 	// Servicios
-	gatewayService := services.NewGatewayService(authServiceClient)
+	gatewayService := services.NewGatewayService(authServiceClient, catalogServiceClient)
 
 	// Adaptadores de Entrada
 	gatewayHandler := httpHandler.NewGatewayHandler(gatewayService, configuration.IsProd)
