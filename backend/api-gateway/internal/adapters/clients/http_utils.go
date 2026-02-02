@@ -26,6 +26,8 @@ func doRequest[T any](ctx context.Context, client *http.Client, method, url stri
     }
     req.Header.Set("Content-Type", "application/json")
 
+    req.Header.Set("User-Agent", "Nexus-Gateway/1.0 (Internal Communication)")
+
     resp, err := client.Do(req)
     if err != nil {
         log.Printf("[GATEWAY ERROR] Fallo de red hacia %s: %v", url, err)
