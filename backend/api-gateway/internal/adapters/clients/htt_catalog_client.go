@@ -23,8 +23,14 @@ func NewHTTPCatalogClient(url string, timeout time.Duration) *HTTPCatalogClient 
     }
 }
 
-func (c *HTTPCatalogClient) GetEvents(ctx context.Context) (*domain.GetEventsResponse, error) {
+func (c *HTTPCatalogClient) GetEvents(ctx context.Context) ([]domain.Event, error) {
     url := c.baseURL + "/catalog/events"
     
-    return doRequest[domain.GetEventsResponse](ctx, c.httpClient, "GET", url, nil)
+    eventsPtr, err := doRequest[[]domain.Event](ctx, c.httpClient, "GET", url, nil)
+    if err != nil {
+        return nil, err
+    }
+
+    // 3. doRequest devuelve un puntero, así que lo desreferenciamos
+    return *eventsPtr, nil
 }

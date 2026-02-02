@@ -18,7 +18,19 @@ impl EventRepository for PostgresEventRepository {
     async fn find_all(&self) -> Result<Vec<Event>, String> {
         let records = sqlx::query_as!(
             Event,
-            r#"SELECT id, title, description, location, event_date, capacity FROM events"#
+            r#"
+            SELECT 
+                id, 
+                title, 
+                description, 
+                image,
+                category,
+                event_date, 
+                location, 
+                price,
+                capacity 
+            FROM events
+            "#
         )
         .fetch_all(&self.pool)
         .await

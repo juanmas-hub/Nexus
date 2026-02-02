@@ -37,7 +37,7 @@ func (service *GatewayService) Register(ctx context.Context, request domain.Regi
     return response, nil
 }
 
-func (service *GatewayService) GetEvents(ctx context.Context) (*domain.GetEventsResponse, error){
+func (service *GatewayService) GetEvents(ctx context.Context) ([]domain.Event, error){
     response, err := service.catalogClient.GetEvents(ctx)
 
     if err != nil {

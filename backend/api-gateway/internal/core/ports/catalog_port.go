@@ -6,5 +6,5 @@ import (
 )
 
 type CatalogClient interface {
-    GetEvents(ctx context.Context) (*domain.GetEventsResponse, error)
+    GetEvents(ctx context.Context) ([]domain.Event, error)
 }
