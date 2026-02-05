@@ -2,24 +2,31 @@ package clients
 
 import (
     "context"
-    //"log"
-    "net/http"
+    //"net/http"
 	"time"
 
+    "github.com/hashicorp/go-retryablehttp"
     "github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/domain"
 )
 
 type HTTPAuthClient struct {
     baseURL    string
-    httpClient *http.Client
+    httpClient *retryablehttp.Client
 }
 
 func NewHTTPAuthClient(url string, timeout time.Duration) *HTTPAuthClient {
+    retryClient := retryablehttp.NewClient()
+
+    retryClient.RetryMax = 4                   
+    retryClient.RetryWaitMin = 1 * time.Second 
+    retryClient.RetryWaitMax = 10 * time.Second
+    retryClient.Logger = nil
+    
+    retryClient.HTTPClient.Timeout = timeout
+
     return &HTTPAuthClient{
-        baseURL: url,
-        httpClient: &http.Client{
-            Timeout: timeout,
-        },
+        baseURL:    url,
+        httpClient: retryClient,
     }
 }
 

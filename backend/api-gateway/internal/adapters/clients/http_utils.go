@@ -1,43 +1,42 @@
 package clients
 
 import (
-    "bytes"
+    //"bytes"
     "context"
     "encoding/json"
     "fmt"
-    "io"
-    "log"
-    "net/http"
+    "github.com/hashicorp/go-retryablehttp"
+    //"io"
+    //"log"
+    //"net/http"
 )
 
-func doRequest[T any](ctx context.Context, client *http.Client, method, url string, body any) (*T, error) {
-    var bodyReader io.Reader
+func doRequest[T any](ctx context.Context, client *retryablehttp.Client, method, url string, body any) (*T, error) {
+    var reqBody interface{}
+
     if body != nil {
         jsonData, err := json.Marshal(body)
         if err != nil {
             return nil, fmt.Errorf("error serializando body: %w", err)
         }
-        bodyReader = bytes.NewBuffer(jsonData)
+        reqBody = jsonData 
     }
 
-    req, err := http.NewRequestWithContext(ctx, method, url, bodyReader)
+    req, err := retryablehttp.NewRequestWithContext(ctx, method, url, reqBody)
     if err != nil {
-        return nil, err
+        return nil, fmt.Errorf("error creando request: %w", err)
     }
+    
     req.Header.Set("Content-Type", "application/json")
-
-    req.Header.Set("User-Agent", "Nexus-Gateway/1.0 (Internal Communication)")
+    req.Header.Set("User-Agent", "Nexus-Gateway/1.0 (Retryable)")
 
     resp, err := client.Do(req)
     if err != nil {
-        log.Printf("[GATEWAY ERROR] Fallo de red hacia %s: %v", url, err)
-        return nil, err
+        return nil, fmt.Errorf("fallo de comunicación tras reintentos: %w", err)
     }
     defer resp.Body.Close()
 
     if resp.StatusCode >= 400 {
-        errorBody, _ := io.ReadAll(resp.Body)
-        log.Printf("[SERVICE ERROR] URL: %s | Status: %d | Body: %s", url, resp.StatusCode, string(errorBody))
         return nil, fmt.Errorf("servicio respondió con status %d", resp.StatusCode)
     }
 
