@@ -17,9 +17,9 @@ type HTTPAuthClient struct {
 func NewHTTPAuthClient(url string, timeout time.Duration) *HTTPAuthClient {
     retryClient := retryablehttp.NewClient()
 
-    retryClient.RetryMax = 4                   
+    retryClient.RetryMax = 10                   
     retryClient.RetryWaitMin = 1 * time.Second 
-    retryClient.RetryWaitMax = 10 * time.Second
+    retryClient.RetryWaitMax = 15 * time.Second
     retryClient.Logger = nil
     
     retryClient.HTTPClient.Timeout = timeout
