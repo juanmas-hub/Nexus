@@ -3,23 +3,31 @@ package clients
 import (
     "context"
     //"log"
-    "net/http"
+    //"net/http"
 	"time"
 
+    "github.com/hashicorp/go-retryablehttp"
     "github.com/juanmas-hub/nexus/backend/api-gateway/internal/core/domain"
 )
 
 type HTTPCatalogClient struct {
     baseURL    string
-    httpClient *http.Client
+    httpClient *retryablehttp.Client
 }
 
 func NewHTTPCatalogClient(url string, timeout time.Duration) *HTTPCatalogClient {
+    retryClient := retryablehttp.NewClient()
+
+    retryClient.RetryMax = 4                   
+    retryClient.RetryWaitMin = 1 * time.Second 
+    retryClient.RetryWaitMax = 10 * time.Second
+    retryClient.Logger = nil
+    
+    retryClient.HTTPClient.Timeout = timeout
+
     return &HTTPCatalogClient{
-        baseURL: url,
-        httpClient: &http.Client{
-            Timeout: timeout,
-        },
+        baseURL:    url,
+        httpClient: retryClient,
     }
 }
 
@@ -31,6 +39,5 @@ func (c *HTTPCatalogClient) GetEvents(ctx context.Context) ([]domain.Event, erro
         return nil, err
     }
 
-    // 3. doRequest devuelve un puntero, así que lo desreferenciamos
     return *eventsPtr, nil
 }
