@@ -1,0 +1,8 @@
+[package]
+name = "booking-infra"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# 1. Tu crate local de dominio
+booking-core = { path = "../booking-core" }

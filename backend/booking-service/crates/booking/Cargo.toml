@@ -1,0 +1,9 @@
+[package]
+name = "booking"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# 1. Tus crates locales
+booking-core = { path = "../booking-core" }
+booking-infra = { path = "../booking-infra" }
