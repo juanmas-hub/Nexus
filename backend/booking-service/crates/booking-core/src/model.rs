@@ -30,15 +30,24 @@ impl fmt::Display for OrderId {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct UserId(Uuid);
-impl UserId { pub fn from_uuid(id: Uuid) -> Self { Self(id) } }
+impl UserId { 
+    pub fn from_uuid(id: Uuid) -> Self { Self(id) } 
+    pub fn as_uuid(&self) -> Uuid { self.0 }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct EventId(Uuid);
-impl EventId { pub fn from_uuid(id: Uuid) -> Self { Self(id) } }
+impl EventId { 
+    pub fn from_uuid(id: Uuid) -> Self { Self(id) } 
+    pub fn as_uuid(&self) -> Uuid { self.0 }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TicketTypeId(Uuid);
-impl TicketTypeId { pub fn from_uuid(id: Uuid) -> Self { Self(id) } }
+impl TicketTypeId { 
+    pub fn from_uuid(id: Uuid) -> Self { Self(id) } 
+    pub fn as_uuid(&self) -> Uuid { self.0 }
+}
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]

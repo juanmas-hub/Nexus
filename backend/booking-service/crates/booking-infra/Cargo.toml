@@ -4,5 +4,12 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-# 1. Tu crate local de dominio
 booking-core = { path = "../booking-core" }
+
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid"] }
+tokio = { version = "1", features = ["full"] }
+serde_json = "1"
+
+# Tipos de datos que se cruzan con la BD
+uuid = { version = "1", features = ["serde", "v4"] }
+chrono = { version = "0.4", features = ["serde"] }
